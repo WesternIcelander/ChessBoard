@@ -1,0 +1,67 @@
+package io.siggi.chessboard.move.finder;
+
+import io.siggi.chessboard.Board;
+import io.siggi.chessboard.move.Move;
+import io.siggi.chessboard.move.RegularMove;
+import io.siggi.chessboard.piece.Piece;
+import io.siggi.chessboard.piece.PieceType;
+import io.siggi.chessboard.position.Square;
+
+import java.util.List;
+
+public class MoveFinderPawn implements MoveFinder {
+
+    @Override
+    public void findMoves(Board board, Square startingSquare, List<Move> moves, boolean checkForCheck) {
+        int direction;
+        Piece piece = board.pieces[startingSquare.index];
+        switch (piece.color) {
+            case White:
+                direction = 1;
+                break;
+            case Black:
+                direction = -1;
+                break;
+            default:
+                throw new RuntimeException();
+        }
+
+        // we typically won't see a pawn on the last rank in regular play
+        // it may occur when looking for valid moves when determining if one player is in check
+        if (startingSquare.y == 0 || startingSquare.y == 7) return;
+
+        boolean isOnStartingRank = direction == 1 ? (startingSquare.y == 1) : (startingSquare.y == 6);
+
+        Square forwardSpace = startingSquare.getRelative(0, direction);
+        boolean forwardSpaceIsEmpty = board.pieces[forwardSpace.index] == null;
+        if (forwardSpaceIsEmpty) {
+            addPawnMoves(startingSquare, forwardSpace, piece, false, null, moves);
+        }
+
+        Square twoSpacesForward = startingSquare.getRelative(0, direction * 2);
+        boolean canMoveTwoSpaces = isOnStartingRank && forwardSpaceIsEmpty && board.pieces[twoSpacesForward.index] == null;
+        if (canMoveTwoSpaces) {
+            addPawnMoves(startingSquare, twoSpacesForward, piece, false, forwardSpace, moves);
+        }
+
+        Square attackLeft = startingSquare.getRelative(-1, direction);
+        if (attackLeft != null && (board.pieces[attackLeft.index] != null || board.enPassant() == attackLeft)) {
+            addPawnMoves(startingSquare, attackLeft, piece, true, null, moves);
+        }
+
+        Square attackRight = startingSquare.getRelative(1, direction);
+        if (attackRight != null && (board.pieces[attackRight.index] != null || board.enPassant() == attackRight)) {
+            addPawnMoves(startingSquare, attackRight, piece, true, null, moves);
+        }
+    }
+
+    private void addPawnMoves(Square startingSquare, Square targetSquare, Piece piece, boolean takesPiece, Square enPassant, List<Move> moves) {
+        if (targetSquare.y == 0 || targetSquare.y == 7) {
+            for (PieceType newPiece : PieceType.getPromotionPieces()) {
+                moves.add(new RegularMove(startingSquare, targetSquare, piece, Piece.of(piece.color, newPiece), takesPiece, enPassant));
+            }
+        } else {
+            moves.add(new RegularMove(startingSquare, targetSquare, piece, null, takesPiece, enPassant));
+        }
+    }
+}
