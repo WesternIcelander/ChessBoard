@@ -30,7 +30,7 @@ public abstract class MoveFinderPiece implements MoveFinder {
         Piece thisPiece = board.pieces[startingSquare.index];
         Piece thatPiece = board.pieces[newSquare.index];
         if (thatPiece != null && thisPiece.color == thatPiece.color) return null;
-        return new RegularMove(startingSquare, newSquare, thisPiece, null, thatPiece != null, null);
+        return new RegularMove(startingSquare, newSquare, thisPiece, null, thatPiece, thatPiece != null ? newSquare : null, null);
     }
 
     protected void findSingleMove(Board board, Square startingSquare, List<Move> moves, int x, int y) {

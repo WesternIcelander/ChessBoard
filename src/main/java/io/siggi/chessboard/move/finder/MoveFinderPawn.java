@@ -52,33 +52,37 @@ public class MoveFinderPawn implements MoveFinder {
         Square forwardSpace = startingSquare.getRelative(0, direction);
         boolean forwardSpaceIsEmpty = board.pieces[forwardSpace.index] == null;
         if (forwardSpaceIsEmpty) {
-            addPawnMoves(startingSquare, forwardSpace, piece, false, null, moves);
+            addPawnMoves(startingSquare, forwardSpace, piece, null, null, null, moves);
         }
 
         Square twoSpacesForward = startingSquare.getRelative(0, direction * 2);
         boolean canMoveTwoSpaces = isOnStartingRank && forwardSpaceIsEmpty && board.pieces[twoSpacesForward.index] == null;
         if (canMoveTwoSpaces) {
-            addPawnMoves(startingSquare, twoSpacesForward, piece, false, forwardSpace, moves);
+            addPawnMoves(startingSquare, twoSpacesForward, piece, null, null, forwardSpace, moves);
         }
 
         Square attackLeft = startingSquare.getRelative(-1, direction);
         if (attackLeft != null && (board.pieces[attackLeft.index] != null || board.enPassant() == attackLeft)) {
-            addPawnMoves(startingSquare, attackLeft, piece, true, null, moves);
+            Square enPassantPawn = board.enPassantPawn();
+            Piece capturedPiece = board.pieces[enPassantPawn.index];
+            addPawnMoves(startingSquare, attackLeft, piece, capturedPiece, enPassantPawn, null, moves);
         }
 
         Square attackRight = startingSquare.getRelative(1, direction);
         if (attackRight != null && (board.pieces[attackRight.index] != null || board.enPassant() == attackRight)) {
-            addPawnMoves(startingSquare, attackRight, piece, true, null, moves);
+            Square enPassantPawn = board.enPassantPawn();
+            Piece capturedPiece = board.pieces[enPassantPawn.index];
+            addPawnMoves(startingSquare, attackRight, piece, capturedPiece, enPassantPawn, null, moves);
         }
     }
 
-    private void addPawnMoves(Square startingSquare, Square targetSquare, Piece piece, boolean takesPiece, Square enPassant, List<Move> moves) {
+    private void addPawnMoves(Square startingSquare, Square targetSquare, Piece piece, Piece capturedPiece, Square capturedSquare, Square enPassant, List<Move> moves) {
         if (targetSquare.y == 0 || targetSquare.y == 7) {
             for (PieceType newPiece : PieceType.getPromotionPieces()) {
-                moves.add(new RegularMove(startingSquare, targetSquare, piece, Piece.of(piece.color, newPiece), takesPiece, enPassant));
+                moves.add(new RegularMove(startingSquare, targetSquare, piece, Piece.of(piece.color, newPiece), capturedPiece, capturedSquare, enPassant));
             }
         } else {
-            moves.add(new RegularMove(startingSquare, targetSquare, piece, null, takesPiece, enPassant));
+            moves.add(new RegularMove(startingSquare, targetSquare, piece, null, capturedPiece, capturedSquare, enPassant));
         }
     }
 }

@@ -46,10 +46,10 @@ public final class CastleMove implements Move {
         PieceColor color = kingFrom.y == 0 ? PieceColor.White : PieceColor.Black;
         this.queenSide = kingTo.x == 2;
         if (kingFrom != kingTo) {
-            moves.add(new RegularMove(kingFrom, kingTo, Piece.of(color, PieceType.King), null, false, null));
+            moves.add(new RegularMove(kingFrom, kingTo, Piece.of(color, PieceType.King), null, null, null, null));
         }
         if (rookFrom != rookTo) {
-            moves.add(new RegularMove(rookFrom, rookTo, Piece.of(color, PieceType.Rook), null, false, null));
+            moves.add(new RegularMove(rookFrom, rookTo, Piece.of(color, PieceType.Rook), null, null, null, null));
         }
         this.moveList = Collections.unmodifiableList(moves);
     }
@@ -73,8 +73,13 @@ public final class CastleMove implements Move {
     }
 
     @Override
-    public boolean takesPiece() {
-        return false;
+    public Piece capturedPiece() {
+        return null;
+    }
+
+    @Override
+    public Square capturedSquare() {
+        return null;
     }
 
     @Override

@@ -38,17 +38,19 @@ public final class RegularMove implements Move {
     public final Square to;
     public final Piece piece;
     public final Piece newPiece;
-    public final boolean takesPiece;
+    public final Piece capturedPiece;
+    public final Square capturedSquare;
     public final Square enPassant;
     private final List<RegularMove> moveList;
     private final Lazy<List<String>> possibleNotations;
 
-    public RegularMove(Square from, Square to, Piece piece, Piece newPiece, boolean takesPiece, Square enPassant) {
+    public RegularMove(Square from, Square to, Piece piece, Piece newPiece, Piece capturedPiece, Square capturedSquare, Square enPassant) {
         this.from = from;
         this.to = to;
         this.piece = piece;
         this.newPiece = newPiece;
-        this.takesPiece = takesPiece;
+        this.capturedPiece = capturedPiece;
+        this.capturedSquare = capturedSquare;
         this.enPassant = enPassant;
         this.moveList = Collections.singletonList(this);
         this.possibleNotations = new Lazy<>(() -> {
@@ -62,7 +64,7 @@ public final class RegularMove implements Move {
             };
             if (piece.type == PieceType.Pawn) {
                 notationPrefix = "";
-                if (takesPiece) {
+                if (capturedPiece != null) {
                     middles = new String[]{
                             middles[1],
                             middles[3]
@@ -71,7 +73,7 @@ public final class RegularMove implements Move {
             } else {
                 notationPrefix = piece.type.singleLetterNotation;
             }
-            if (takesPiece) {
+            if (capturedPiece != null) {
                 notationSuffix.append("x");
             }
             notationSuffix.append(to.name().toLowerCase(Locale.ROOT));
@@ -123,8 +125,13 @@ public final class RegularMove implements Move {
     }
 
     @Override
-    public boolean takesPiece() {
-        return takesPiece;
+    public Piece capturedPiece() {
+        return capturedPiece;
+    }
+
+    @Override
+    public Square capturedSquare() {
+        return capturedSquare;
     }
 
     @Override
@@ -157,9 +164,13 @@ public final class RegularMove implements Move {
                 if (sb.length() != 1) sb.append(",");
                 sb.append("SkipsSquare=").append(enPassant.name());
             }
-            if (takesPiece) {
+            if (capturedPiece != null) {
                 if (sb.length() != 1) sb.append(",");
-                sb.append("Captures");
+                sb.append("Captures=").append(capturedPiece.name());
+            }
+            if (capturedSquare != null && capturedSquare != to) {
+                if (sb.length() != 1) sb.append(",");
+                sb.append("On=").append(capturedSquare.name());
             }
             if (newPiece != null) {
                 if (sb.length() != 1) sb.append(",");

@@ -18,7 +18,9 @@
 package io.siggi.chessboard.move;
 
 import io.siggi.chessboard.Board;
+import io.siggi.chessboard.piece.Piece;
 import io.siggi.chessboard.piece.PieceColor;
+import io.siggi.chessboard.position.Square;
 
 import java.util.List;
 
@@ -27,7 +29,13 @@ public interface Move {
 
     List<RegularMove> asRegularMoves();
 
-    boolean takesPiece();
+    default boolean takesPiece() {
+        return capturedPiece() != null;
+    }
+
+    Piece capturedPiece();
+
+    Square capturedSquare();
 
     PieceColor getColor();
 }
