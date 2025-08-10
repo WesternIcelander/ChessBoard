@@ -100,7 +100,7 @@ public enum Square {
     G8(G, _8),
     H8(H, _8);
 
-    private static Square[] VALUES = values();
+    private static final Square[] VALUES = values();
 
     public final File file;
     public final Rank rank;
