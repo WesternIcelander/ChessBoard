@@ -156,9 +156,8 @@ public class Board {
     public Board applyMove(Move move) {
         Square newEnPassant = null;
         PieceColor color = move.getColor();
-        int backRank = color == PieceColor.Black ? 7 : 0;
-        Square leftRook = Square.fromCoordinate(leftRookFile, backRank);
-        Square rightRook = Square.fromCoordinate(rightRookFile, backRank);
+        Square leftRook = getLeftRookStartingSquare(color);
+        Square rightRook = getRightRookStartingSquare(color);
         Square king = findKing(color);
         for (RegularMove m : move.asRegularMoves()) {
             pieces[m.from.index] = null;
