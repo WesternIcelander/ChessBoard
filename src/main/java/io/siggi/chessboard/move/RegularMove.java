@@ -41,10 +41,13 @@ public final class RegularMove implements Move {
     public final Piece capturedPiece;
     public final Square capturedSquare;
     public final Square enPassant;
+    public final boolean removesRightToCastleQueenSide;
+    public final boolean removesRightToCastleKingSide;
+    public final Square clearedEnPassant;
     private final List<RegularMove> moveList;
     private final Lazy<List<String>> possibleNotations;
 
-    public RegularMove(Square from, Square to, Piece piece, Piece newPiece, Piece capturedPiece, Square capturedSquare, Square enPassant) {
+    public RegularMove(Square from, Square to, Piece piece, Piece newPiece, Piece capturedPiece, Square capturedSquare, Square enPassant, boolean castleQueenSide, boolean castleKingSide, Square clearedEnPassant) {
         this.from = from;
         this.to = to;
         this.piece = piece;
@@ -52,6 +55,9 @@ public final class RegularMove implements Move {
         this.capturedPiece = capturedPiece;
         this.capturedSquare = capturedSquare;
         this.enPassant = enPassant;
+        this.removesRightToCastleQueenSide = castleQueenSide;
+        this.removesRightToCastleKingSide = castleKingSide;
+        this.clearedEnPassant = clearedEnPassant;
         this.moveList = Collections.singletonList(this);
         this.possibleNotations = new Lazy<>(() -> {
             String notationPrefix;
@@ -137,6 +143,21 @@ public final class RegularMove implements Move {
     @Override
     public PieceColor getColor() {
         return piece.color;
+    }
+
+    @Override
+    public boolean removesRightToCastleQueenSide() {
+        return removesRightToCastleQueenSide;
+    }
+
+    @Override
+    public boolean removesRightToCastleKingSide() {
+        return removesRightToCastleKingSide;
+    }
+
+    @Override
+    public Square clearedEnPassant() {
+        return clearedEnPassant;
     }
 
     private String toString = null;

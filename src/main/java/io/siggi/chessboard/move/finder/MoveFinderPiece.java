@@ -21,6 +21,7 @@ import io.siggi.chessboard.Board;
 import io.siggi.chessboard.move.Move;
 import io.siggi.chessboard.move.RegularMove;
 import io.siggi.chessboard.piece.Piece;
+import io.siggi.chessboard.piece.PieceType;
 import io.siggi.chessboard.position.Square;
 
 import java.util.List;
@@ -30,7 +31,18 @@ public abstract class MoveFinderPiece implements MoveFinder {
         Piece thisPiece = board.pieces[startingSquare.index];
         Piece thatPiece = board.pieces[newSquare.index];
         if (thatPiece != null && thisPiece.color == thatPiece.color) return null;
-        return new RegularMove(startingSquare, newSquare, thisPiece, null, thatPiece, thatPiece != null ? newSquare : null, null);
+        boolean removesRightToCastleQueenSide = thisPiece.type == PieceType.King;
+        boolean removesRightToCastleKingSide = removesRightToCastleQueenSide;
+        if (thisPiece.type == PieceType.Rook) {
+            if (startingSquare == board.getLeftRookStartingSquare(thisPiece.color)) {
+                removesRightToCastleQueenSide = true;
+            } else if (startingSquare == board.getRightRookStartingSquare(thisPiece.color)) {
+                removesRightToCastleKingSide = true;
+            }
+        }
+        if (!board.canCastleQueenSide(thisPiece.color)) removesRightToCastleQueenSide = false;
+        if (!board.canCastleKingSide(thisPiece.color)) removesRightToCastleKingSide = false;
+        return new RegularMove(startingSquare, newSquare, thisPiece, null, thatPiece, thatPiece != null ? newSquare : null, null, removesRightToCastleQueenSide, removesRightToCastleKingSide, board.enPassant);
     }
 
     protected void findSingleMove(Board board, Square startingSquare, List<Move> moves, int x, int y) {

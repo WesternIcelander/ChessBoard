@@ -35,9 +35,12 @@ public final class CastleMove implements Move {
     public final Square rookFrom;
     public final Square rookTo;
     public final boolean queenSide;
+    public final boolean removesRightToCastleQueenSide;
+    public final boolean removesRightToCastleKingSide;
+    public final Square clearedEnPassant;
     private final List<RegularMove> moveList;
 
-    public CastleMove(Square kingFrom, Square kingTo, Square rookFrom, Square rookTo) {
+    public CastleMove(Square kingFrom, Square kingTo, Square rookFrom, Square rookTo, boolean removesRightToCastleQueenSide, boolean removesRightToCastleKingSide, Square clearedEnPassant) {
         this.kingFrom = kingFrom;
         this.kingTo = kingTo;
         this.rookFrom = rookFrom;
@@ -46,11 +49,14 @@ public final class CastleMove implements Move {
         PieceColor color = kingFrom.y == 0 ? PieceColor.White : PieceColor.Black;
         this.queenSide = kingTo.x == 2;
         if (kingFrom != kingTo) {
-            moves.add(new RegularMove(kingFrom, kingTo, Piece.of(color, PieceType.King), null, null, null, null));
+            moves.add(new RegularMove(kingFrom, kingTo, Piece.of(color, PieceType.King), null, null, null, null, removesRightToCastleQueenSide, removesRightToCastleKingSide, clearedEnPassant));
         }
         if (rookFrom != rookTo) {
-            moves.add(new RegularMove(rookFrom, rookTo, Piece.of(color, PieceType.Rook), null, null, null, null));
+            moves.add(new RegularMove(rookFrom, rookTo, Piece.of(color, PieceType.Rook), null, null, null, null, removesRightToCastleQueenSide, removesRightToCastleKingSide, clearedEnPassant));
         }
+        this.removesRightToCastleQueenSide = removesRightToCastleQueenSide;
+        this.removesRightToCastleKingSide = removesRightToCastleKingSide;
+        this.clearedEnPassant = clearedEnPassant;
         this.moveList = Collections.unmodifiableList(moves);
     }
 
@@ -90,5 +96,20 @@ public final class CastleMove implements Move {
     @Override
     public String toString() {
         return queenSide ? "CastleMove{Side=Queen}" : "CastleMove{Side=King}";
+    }
+
+    @Override
+    public boolean removesRightToCastleQueenSide() {
+        return removesRightToCastleQueenSide;
+    }
+
+    @Override
+    public boolean removesRightToCastleKingSide() {
+        return removesRightToCastleKingSide;
+    }
+
+    @Override
+    public Square clearedEnPassant() {
+        return clearedEnPassant;
     }
 }

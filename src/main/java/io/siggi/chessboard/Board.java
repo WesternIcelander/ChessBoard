@@ -151,58 +151,55 @@ public class Board {
     public Board applyMove(Move move) {
         Square newEnPassant = null;
         PieceColor color = move.getColor();
-        Square leftRook = getLeftRookStartingSquare(color);
-        Square rightRook = getRightRookStartingSquare(color);
-        Square king = findKing(color);
         for (RegularMove m : move.asRegularMoves()) {
             pieces[m.from.index] = null;
         }
         for (RegularMove m : move.asRegularMoves()) {
-            boolean pieceWasOnNewSpace = pieces[m.to.index] != null;
+            if (m.capturedSquare != null) {
+                pieces[m.capturedSquare.index] = null;
+            }
             pieces[m.to.index] = m.newPiece == null ? m.piece : m.newPiece;
             if (m.enPassant != null) {
                 newEnPassant = m.enPassant;
             }
-            if (enPassant != null && move.takesPiece() && !pieceWasOnNewSpace) {
-                Square pawn = enPassantPawn();
-                if (pawn != null) {
-                    pieces[pawn.index] = null;
-                }
-            }
-            if (m.from == king) {
-                switch (color) {
-                    case White:
-                        whiteCastleKingAllowed = whiteCastleQueenAllowed = false;
-                        break;
-                    case Black:
-                        blackCastleKingAllowed = blackCastleQueenAllowed = false;
-                        break;
-                }
-            }
-            if (m.from == leftRook) {
-                switch (color) {
-                    case White:
-                        whiteCastleQueenAllowed = false;
-                        break;
-                    case Black:
-                        blackCastleQueenAllowed = false;
-                        break;
-                }
-            }
-            if (m.from == rightRook) {
-                switch (color) {
-                    case White:
-                        whiteCastleKingAllowed = false;
-                        break;
-                    case Black:
-                        blackCastleKingAllowed = false;
-                        break;
-                }
-            }
+        }
+        if (move.removesRightToCastleQueenSide()) {
+            setCanCastleQueenSide(color, false);
+        }
+        if (move.removesRightToCastleKingSide()) {
+            setCanCastleKingSide(color, false);
         }
         enPassant = newEnPassant;
         halfMoves += 1;
         if (nextMove == PieceColor.Black) this.move += 1;
+        nextMove = nextMove.otherColor();
+        return this;
+    }
+
+    public Board revertMove(Move move) {
+        Square newEnPassant = null;
+        PieceColor color = move.getColor();
+        for (RegularMove m : move.asRegularMoves()) {
+            pieces[m.to.index] = null;
+            if (m.capturedSquare != null) {
+                pieces[m.capturedSquare.index] = m.capturedPiece;
+            }
+            if (m.clearedEnPassant() != null) {
+                newEnPassant = m.clearedEnPassant();
+            }
+        }
+        for (RegularMove m : move.asRegularMoves()) {
+            pieces[m.from.index] = m.piece;
+        }
+        if (move.removesRightToCastleQueenSide()) {
+            setCanCastleQueenSide(color, true);
+        }
+        if (move.removesRightToCastleKingSide()) {
+            setCanCastleKingSide(color, true);
+        }
+        enPassant = newEnPassant;
+        halfMoves -= 1;
+        if (nextMove == PieceColor.White) this.move -= 1;
         nextMove = nextMove.otherColor();
         return this;
     }
@@ -226,5 +223,33 @@ public class Board {
             return null;
         }
         return Square.of(enPassant.file, checkRank);
+    }
+
+    public boolean canCastleQueenSide(PieceColor color) {
+        if (color == null) throw new NullPointerException();
+        return color == PieceColor.White ? whiteCastleQueenAllowed : blackCastleQueenAllowed;
+    }
+
+    public boolean canCastleKingSide(PieceColor color) {
+        if (color == null) throw new NullPointerException();
+        return color == PieceColor.White ? whiteCastleKingAllowed : blackCastleKingAllowed;
+    }
+
+    public void setCanCastleQueenSide(PieceColor color, boolean can) {
+        if (color == null) throw new NullPointerException();
+        if (color == PieceColor.White) {
+            whiteCastleQueenAllowed = can;
+        } else {
+            blackCastleQueenAllowed = can;
+        }
+    }
+
+    public void setCanCastleKingSide(PieceColor color, boolean can) {
+        if (color == null) throw new NullPointerException();
+        if (color == PieceColor.White) {
+            whiteCastleKingAllowed = can;
+        } else {
+            blackCastleKingAllowed = can;
+        }
     }
 }

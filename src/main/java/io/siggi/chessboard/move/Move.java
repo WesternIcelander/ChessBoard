@@ -38,4 +38,10 @@ public interface Move {
     Square capturedSquare();
 
     PieceColor getColor();
+
+    boolean removesRightToCastleQueenSide();
+
+    boolean removesRightToCastleKingSide();
+
+    Square clearedEnPassant();
 }

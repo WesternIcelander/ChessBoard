@@ -44,16 +44,13 @@ public class MoveFinderKing extends MoveFinderPiece {
         PieceColor color = board.pieces[startingSquare.index].color;
         int rank = color == PieceColor.Black ? 7 : 0;
 
-        boolean canCastleKingSide = color == PieceColor.Black ? board.blackCastleKingAllowed : board.whiteCastleKingAllowed;
-        boolean canCastleQueenSide = color == PieceColor.Black ? board.blackCastleQueenAllowed : board.whiteCastleQueenAllowed;
-
-        if (canCastleKingSide) {
+        if (board.canCastleKingSide(color)) {
             Square rookPosition = board.getRightRookStartingSquare(color);
             Square kingDestination = Square.fromCoordinate(File.G.ordinal(), rank);
             Square rookDestination = Square.fromCoordinate(File.F.ordinal(), rank);
             findCastleMove(board, color, startingSquare, kingDestination, rookPosition, rookDestination, moves, checkForCheck);
         }
-        if (canCastleQueenSide) {
+        if (board.canCastleQueenSide(color)) {
             Square rookPosition = board.getLeftRookStartingSquare(color);
             Square kingDestination = Square.fromCoordinate(File.C.ordinal(), rank);
             Square rookDestination = Square.fromCoordinate(File.D.ordinal(), rank);
@@ -81,7 +78,7 @@ public class MoveFinderKing extends MoveFinderPiece {
                 }
             }
         }
-        moves.add(new CastleMove(kingPosition, kingDestination, rookPosition, rookDestination));
+        moves.add(new CastleMove(kingPosition, kingDestination, rookPosition, rookDestination, !board.canCastleQueenSide(color), !board.canCastleKingSide(color), board.enPassant));
     }
 
     private static List<Square> getSquaresTraveledOn(Square start, Square end) {
