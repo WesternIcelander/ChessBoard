@@ -84,6 +84,9 @@ public class Board {
         enPassant = b.enPassant;
         halfMoves = b.halfMoves;
         move = b.move;
+        leftRookFile = b.leftRookFile;
+        rightRookFile = b.rightRookFile;
+        prohibitSelfCheck = b.prohibitSelfCheck;
         return this;
     }
 
