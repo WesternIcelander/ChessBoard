@@ -69,11 +69,6 @@ public class Board {
         return Square.fromCoordinate(file, rank);
     }
 
-    public Board copy() {
-        Board b = new Board();
-        return b.copyFrom(this);
-    }
-
     public Board copyFrom(Board b) {
         System.arraycopy(b.pieces, 0, pieces, 0, pieces.length);
         nextMove = b.nextMove;
