@@ -61,18 +61,16 @@ public class MoveFinderPawn implements MoveFinder {
             addPawnMoves(board, startingSquare, twoSpacesForward, piece, null, null, forwardSpace, moves);
         }
 
-        Square attackLeft = startingSquare.getRelative(-1, direction);
-        if (attackLeft != null && (board.pieces[attackLeft.index] != null || board.enPassant() == attackLeft)) {
-            Square enPassantPawn = board.enPassantPawn();
-            Piece capturedPiece = board.pieces[enPassantPawn.index];
-            addPawnMoves(board, startingSquare, attackLeft, piece, capturedPiece, enPassantPawn, null, moves);
-        }
+        pawnAttack(board, startingSquare, moves, piece, startingSquare.getRelative(-1, direction));
+        pawnAttack(board, startingSquare, moves, piece, startingSquare.getRelative(1, direction));
+    }
 
-        Square attackRight = startingSquare.getRelative(1, direction);
-        if (attackRight != null && (board.pieces[attackRight.index] != null || board.enPassant() == attackRight)) {
-            Square enPassantPawn = board.enPassantPawn();
-            Piece capturedPiece = board.pieces[enPassantPawn.index];
-            addPawnMoves(board, startingSquare, attackRight, piece, capturedPiece, enPassantPawn, null, moves);
+    private void pawnAttack(Board board, Square startingSquare, List<Move> moves, Piece piece, Square newSquare) {
+        boolean isEnPassant = board.enPassant() == newSquare;
+        if (newSquare != null && (board.pieces[newSquare.index] != null || isEnPassant)) {
+            Square capturedSquare = isEnPassant ? board.enPassantPawn() : newSquare;
+            Piece capturedPiece = board.pieces[capturedSquare.index];
+            addPawnMoves(board, startingSquare, newSquare, piece, capturedPiece, capturedSquare, null, moves);
         }
     }
 
